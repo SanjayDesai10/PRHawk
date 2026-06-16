@@ -1,4 +1,4 @@
-export type Severity = "bug" | "security" | " style" | "suggestion" | "performance"
+export type Severity = "bug" | "security" | "style" | "suggestion" | "performance"
 
 export interface PullRequestRef {
     owner : string,

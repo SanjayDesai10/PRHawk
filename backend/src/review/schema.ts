@@ -16,7 +16,7 @@ export const inlineCommentSchema = z.object({
 export const riskSummarySchema = z.object({
     qualityScore: z.number().describe("Overall code quality score from 0 (poor) to 100 (excellent)."),
     highestRiskChanges: z.array(z.string()).describe("Short descriptions of the highest-risk changes in this PR."),
-    mergeDecisions : z.enum(["approve" , "request_changes" , "comment"]).describe("Recommended merge decision."),
+    mergeDecision : z.enum(["approve" , "request_changes" , "comment"]).describe("Recommended merge decision."),
     rationale: z.string().describe("Rationale for the recommended merge decisions.")
 })
 
@@ -25,6 +25,16 @@ export const reviewResultSchema = z.object({
     comments : z.array(inlineCommentSchema)
 })
 
+export const conventionsSchema = z.object({
+    rules: z.array(
+        z.object({
+            rule : z.string().describe("A concrete actionable review rule derived from merged PRs."),
+            rationale: z.string().describe("Evidence from the PR history that this is a team convention."),
+            severity: severitySchema,
+        })
+    )
+})
 export type ReviewResult = z.infer<typeof reviewResultSchema>
 export type InlineComment = z.infer<typeof inlineCommentSchema>
 export type RiskSummary = z.infer<typeof riskSummarySchema>
+export type ConventionsResult = z.infer<typeof conventionsSchema>;
