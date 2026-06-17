@@ -872,7 +872,7 @@ button, input, textarea, select {
 
 .comment-detail-box {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.5rem;
 }
 
@@ -906,12 +906,13 @@ button, input, textarea, select {
   background-color: var(--surface-alt);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
   font-family: var(--font-mono);
   font-size: 0.85rem;
   color: var(--t1);
   overflow-x: auto;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
   margin-top: 0.25rem;
   position: relative;
 }

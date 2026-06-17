@@ -7,8 +7,8 @@ let client: OpenAI | null = null;
 function getOpenAIClient(): OpenAI {
   if (!client) {
     client = new OpenAI({
-      apiKey: config.groqAPIKey(),
-      baseURL: "https://api.groq.com/openai/v1",
+      apiKey: config.apiKey(),
+      baseURL: config.baseURL(),
     });
   }
 
@@ -25,6 +25,7 @@ export async function complete<T extends z.ZodTypeAny>(
   const response = await getOpenAIClient().chat.completions.create({
     model: config.model,
     temperature: 0.2,
+    max_tokens: 3000,
     response_format: { type: "json_object" },
     messages: [
       {
