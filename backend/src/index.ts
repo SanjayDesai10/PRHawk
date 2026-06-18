@@ -23,8 +23,7 @@ function parseRepo(target: string): { owner: string; repo: string } | null {
 }
 
 const allowedOrigins = (
- 
-  "https://pr-hawk.vercel.app,http://localhost:3000"
+  "https://pr-hawk.vercel.app,http://localhost:5173,http://localhost:3000"
 )
   .split(",")
   .map((o) => o.trim())
@@ -32,13 +31,16 @@ const allowedOrigins = (
 
 function startServer(): void {
   const app = express();
-  app.all("/api/auth/*splat", toNodeHandler(auth));
 
-
+  // CORS must run first so every response — including better-auth's — carries
+  // the headers, and cross-origin preflight is answered. Credentials are
+  // allowed because better-auth uses session cookies (which also requires a
+  // specific origin, never "*").
   app.use((req, res, next) => {
     const origin = req.header("origin");
     if (origin && allowedOrigins.includes(origin)) {
       res.header("Access-Control-Allow-Origin", origin);
+      res.header("Access-Control-Allow-Credentials", "true");
       res.header("Vary", "Origin");
       res.header("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
       res.header(
@@ -52,6 +54,10 @@ function startServer(): void {
     }
     next();
   });
+
+  // better-auth handler runs before express.json() because it parses its own
+  // request body; mounting json() first would consume it.
+  app.all("/api/auth/*splat", toNodeHandler(auth));
 
   app.use(express.json());
 
@@ -84,9 +90,6 @@ function startServer(): void {
       const conventions = await loadConventions();
       const result = await reviewDiff(pr.title ?? "", pr.body ?? "", contexts, conventions, customLlmKey, customLlmBase);
 
-      // Posting to GitHub requires a token with PR-write access. If it fails
-      // (e.g. read-only/insufficient token), still return the generated review
-      // so the user sees it in the UI, with a warning explaining the post failed.
       let postWarning: string | undefined;
       try {
         await postReview(ref, pr.head.sha, result, customToken);
